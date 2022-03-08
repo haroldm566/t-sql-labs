@@ -1,0 +1,46 @@
+- Scenario
+Pizza Deliveries
+
+System should: 
+	-	Record each customer order containing their ID
+and pizza(s) they ordered, amount paid, who served them and delivered them (if applicable)
+	
+	-	Record each individual pizza on the menu's name and toppings
+	
+	-	Record current employee details like name, type of employee
+	
+	-	Record customer details
+
+	
+- Use Cases
+Customer:
+	Make call
+	View menu
+	Order pizza(s)
+	Pay online, on-site or when delivered
+	Review pizza quality and/or survival on delivery
+
+Employee
+
+
+- Main Entities
+Customer
+
+Pizza
+Order
+
+- Attributes
+Customer:
+	Name
+	Email
+	Phone Number
+	
+Pizza:
+
+Order: 
+	Customer
+	
+	
+
+- Relationships
+

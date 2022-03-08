@@ -1,0 +1,72 @@
+/* SECTION 4 */
+-- 4.1
+SELECT StartDate, EndDate FROM Semester 
+JOIN PaperInstance on Semester.SemesterID = PaperInstance.SemesterID 
+WHERE PaperInstance.PaperID = 'IN511'
+
+-- 4.2
+SELECT DISTINCT FullName FROM Person 
+JOIN Enrolment ON Person.PersonID = Enrolment.PersonID 
+JOIN Paper ON Enrolment.PaperID = Paper.PaperID 
+WHERE Paper.PaperID = 'IN511'
+
+-- 4.3
+SELECT DISTINCT FullName FROM Person 
+LEFT JOIN Enrolment ON Person.PersonID = Enrolment.PersonID 
+WHERE Person.PersonID NOT IN (SELECT PersonID FROM Enrolment)
+
+-- 4.4 (Returns IN610 and IN728)
+SELECT Paper.PaperID FROM Paper 
+LEFT JOIN PaperInstance ON Paper.PaperID = PaperInstance.PaperID 
+WHERE Paper.PaperID NOT IN (SELECT PaperInstance.PaperID FROM PaperInstance)
+
+-- 4.5 
+SELECT Paper.PaperID, Semester.SemesterID, Semester.StartDate, DATEDIFF(day, Semester.StartDate, Semester.EndDate) AS 'Semester Length (Days)' FROM Semester 
+JOIN PaperInstance ON Semester.SemesterID = PaperInstance.SemesterID
+JOIN Paper ON PaperInstance.PaperID = Paper.PaperID WHERE Paper.PaperID = 'IN511'
+
+-- 4.6 (Enrolled Grayson and Dave Copperfield into IN511 to test)
+SELECT Person.FullName FROM Person
+JOIN Enrolment ON Person.PersonID = Enrolment.PersonID
+JOIN Semester ON Enrolment.SemesterID = Semester.SemesterID
+WHERE Semester.StartDate >= '12-Apr-2018' AND Semester.EndDate <= '13-Aug-2019'
+AND Enrolment.PaperID = 'IN511' 
+ORDER BY Person.FamilyName, Person.GivenName
+	
+/* SECTION 5 */
+-- 5.1 (Doesn't show IN610 and IN728 as expected)
+SELECT Paper.PaperID, COUNT(Paper.PaperID) AS Instances FROM Paper
+LEFT JOIN PaperInstance ON Paper.PaperID = PaperInstance.PaperID
+WHERE Paper.PaperID IN (SELECT PaperInstance.PaperID FROM Paper) 
+GROUP BY Paper.PaperID
+
+-- 5.2
+SELECT PaperInstance.PaperID, Paper.PaperName, COUNT(PaperInstance.PaperID) AS [Enrolment Count] 
+FROM PaperInstance 
+JOIN Semester ON PaperInstance.SemesterID = Semester.SemesterID
+JOIN Paper ON PaperInstance.PaperID = Paper.PaperID
+GROUP BY PaperInstance.PaperID, Paper.PaperName 
+
+-- 5.3
+SELECT Paper.PaperID, Paper.PaperName, COUNT(Enrolment.PaperID) AS 'Enrolment Count' 
+FROM Paper LEFT JOIN Enrolment ON Paper.PaperID = Enrolment.PaperID 
+GROUP BY Paper.PaperID, Paper.PaperName
+
+-- 5.4
+SELECT Paper.PaperName, Semester.StartDate, Semester.EndDate,  COUNT(Enrolment.PersonID) AS 'Enrolment Count'
+FROM Enrolment
+JOIN PaperInstance ON Enrolment.PaperID = PaperInstance.PaperID AND Enrolment.SemesterID = PaperInstance.SemesterID
+JOIN Paper ON PaperInstance.PaperID = Paper.PaperID
+JOIN Semester ON PaperInstance.SemesterID = Semester.SemesterID
+GROUP BY Paper.PaperID, Paper.PaperName, Semester.StartDate, Semester.EndDate
+ORDER BY 'Enrolment Count' DESC
+
+-- 5.5 (Returns nothing because there's no people with more than three enrolments)
+SELECT Paper.PaperName, Semester.StartDate, Semester.EndDate,  COUNT(Enrolment.PersonID) AS EnrolmentCount
+FROM Enrolment
+JOIN PaperInstance ON Enrolment.PaperID = PaperInstance.PaperID AND Enrolment.SemesterID = PaperInstance.SemesterID
+JOIN Paper ON PaperInstance.PaperID = Paper.PaperID
+JOIN Semester ON PaperInstance.SemesterID = Semester.SemesterID
+GROUP BY Paper.PaperID, Paper.PaperName, Semester.StartDate, Semester.EndDate
+HAVING COUNT(Enrolment.PersonID) BETWEEN 3 AND 5
+ORDER BY EnrolmentCount DESC
